@@ -1,0 +1,74 @@
+[build-system]
+requires = [
+    "setuptools >= 64.0.0",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "graphrtl"
+version = "0.0.1"
+description = "A graph representation learning library for reconfigurable hardware design."
+requires-python = ">=3.13"
+readme = "README.md"
+authors = [{name = "Joaquin Armatage", email = "jarmatag@asu.edu"}]
+keywords = ["graph", "hardware", "design"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13"
+]
+dependencies = [
+    "click>=8.3.1",
+    "daiquiri>=3.4.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.0",
+    "pytest>=9.0.1",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.7",
+]
+
+[project.scripts]
+graphrtl = "graphrtl.cli.cli:cli"
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+graphrtl = ["py.typed"]
+
+[tool.mypy]
+python_version = 3.13
+strict = true
+
+[tool.pytest.ini_options]
+minversion = 8.0
+addopts = "-ra --cov=graphrtl --cov-report term-missing --basetemp=tests/tmp"
+testpaths = [
+    "tests",
+]
+
+[tool.ruff]
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "COM812", # ignore missing-trailing-comma
+    "D203", # ignore one-blank-line-before-class
+    "D212", # ignore multi-line-summary-first-line
+    "ISC001", # ignore single-line-implicit-string-concatenation
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "PLR2004", # ignore magic-value-comparison
+    "S101", # ignore assert
+    "SLF001", # ignore private member access
+]

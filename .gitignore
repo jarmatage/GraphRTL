@@ -1,0 +1,12 @@
+# Relative files
+.coverage
+
+# Relative directories
+.vscode/
+.venv/
+__pycache__/
+*.egg-info/
+
+# Specific directories
+/dist/
+/tests/tmp/
