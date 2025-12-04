@@ -103,6 +103,7 @@ source = { editable = "." }
 dependencies = [
     { name = "click" },
     { name = "daiquiri" },
+    { name = "pyslang" },
 ]
 
 [package.dev-dependencies]
@@ -117,6 +118,7 @@ dev = [
 requires-dist = [
     { name = "click", specifier = ">=8.3.1" },
     { name = "daiquiri", specifier = ">=3.4.0" },
+    { name = "pyslang", specifier = ">=9.1.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -247,6 +249,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/b0/77/a5b8c569bf593b0140bde72ea885a803b82086995367bf2037de0159d924/pygments-2.19.2.tar.gz", hash = "sha256:636cb2477cec7f8952536970bc533bc43743542f70392ae026374600add5b887", size = 4968631, upload-time = "2025-06-21T13:39:12.283Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c7/21/705964c7812476f378728bdf590ca4b771ec72385c533964653c68e86bdc/pygments-2.19.2-py3-none-any.whl", hash = "sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b", size = 1225217, upload-time = "2025-06-21T13:39:07.939Z" },
+]
+
+[[package]]
+name = "pyslang"
+version = "9.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b6/1e/d43f7dcbaf7f73c522bd8e27914924b050ba371610ca09c1e31883161a1d/pyslang-9.1.0.tar.gz", hash = "sha256:78f3d949eb40cc963b21992c57c65a0be3d3c9147ea4e8607737bc7042fb1a88", size = 1682499, upload-time = "2025-09-26T12:37:58.471Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/fd/195d021c340728d594ca485689be5bef91e499e8e48380ffae467dae4c32/pyslang-9.1.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:0dd76a6d153ce308eb1525e7e893eb36c4e1ec2f1fa7bac36147cb99cee78daa", size = 3061758, upload-time = "2025-09-26T12:37:42.786Z" },
+    { url = "https://files.pythonhosted.org/packages/96/11/d3c9ba6b2b24658b818286eb458a6b946e85c1d7c702639ec54046ddd3f5/pyslang-9.1.0-cp313-cp313-macosx_11_0_universal2.whl", hash = "sha256:f57e56c4a3600108b505f425412da711b5b6f36dbbccd68b5e0f07633787fc68", size = 6414184, upload-time = "2025-09-26T12:37:44.613Z" },
+    { url = "https://files.pythonhosted.org/packages/0a/c7/bbe5591a2b03c9b14e67c7762772d358c151b4c5310f94ef198417c0ffcc/pyslang-9.1.0-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:cecc3aa795efb71b14525b0111bbb0f0413b03dfcd6cf7266be1524fa9a51eff", size = 3871680, upload-time = "2025-09-26T12:37:46.054Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/45/12063139410c4c533cb1d17ebad561d3213ddc3620a0247c84b3fbd1892b/pyslang-9.1.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:f252c10f16d291f30c6ac5d13b20377b7d62b753102da8dc6a8cc079b79e42ee", size = 4347433, upload-time = "2025-09-26T12:37:47.366Z" },
+    { url = "https://files.pythonhosted.org/packages/41/96/d42053cc80f4c372b59da48d42997114093c5a87980dbf293b99f60fe8fc/pyslang-9.1.0-cp313-cp313-win_amd64.whl", hash = "sha256:0135d2387d936ae46990a42883606d1043ee588c1688d3fab54cff7f3819cba3", size = 2621058, upload-time = "2025-09-26T12:37:48.792Z" },
 ]
 
 [[package]]
