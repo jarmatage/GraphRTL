@@ -3,9 +3,9 @@
 all: lint test
 
 lint: .venv/bin/activate
-	uv run ruff format --check
-	uv run mypy src
-	uv run ruff check
+	uvx ruff format --check
+	uvx ruff check
+	uvx pyrefly check
 
 test: .venv/bin/activate
 	uv run pytest

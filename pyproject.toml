@@ -27,10 +27,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "mypy>=1.19.0",
     "pytest>=9.0.1",
     "pytest-cov>=7.0.0",
-    "ruff>=0.14.7",
 ]
 
 [project.scripts]
@@ -46,9 +44,11 @@ where = ["src"]
 [tool.setuptools.package-data]
 graphrtl = ["py.typed"]
 
-[tool.mypy]
-python_version = 3.13
-strict = true
+[tool.pyrefly]
+project-includes = ["src"]
+search-path = ["src"]
+python-platform = "linux"
+python-version = "3.13"
 
 [tool.pytest.ini_options]
 minversion = 8.0
