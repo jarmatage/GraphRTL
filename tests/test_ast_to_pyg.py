@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from graphrtl.sog.ast_to_pyg import convert_verilog_to_pyg
+from graphrtl.sog.ast_to_pyg import ASTToPyG
 from graphrtl.sog.directed_graph import DirectedGraph
 from graphrtl.sog.sog_node import SOGNode
 
@@ -19,9 +19,9 @@ def test_directed_graph() -> None:
     graph.add_node("test2", node2)
     graph.add_edge("test1", "test2")
 
-    assert "test1" in graph.node_dict
-    assert "test2" in graph.node_dict
-    assert "test2" in graph.get_neighbors("test1")
+    assert "test1" in graph.nodes
+    assert "test2" in graph.nodes
+    assert "test2" in graph.get_loads("test1")
 
 
 def test_convert_verilog_file() -> None:
@@ -31,7 +31,8 @@ def test_convert_verilog_file() -> None:
     if not fixture_path.exists():
         pytest.skip(f"Fixture file not found: {fixture_path}")
 
-    data = convert_verilog_to_pyg(str(fixture_path))
+    converter = ASTToPyG()
+    data = converter.convert_verilog(fixture_path)
 
     # Check that we got a PyG Data object
     assert data is not None

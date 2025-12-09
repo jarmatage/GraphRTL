@@ -1,6 +1,7 @@
 """Convert Verilog AST from pyverilog to PyTorch Geometric graph."""
 
 import re
+from pathlib import Path
 
 import torch
 from pyverilog.vparser.parser import parse
@@ -13,7 +14,7 @@ from .sog_node import SOGNode
 class ASTToPyG:
     """Convert Verilog AST to PyTorch Geometric graph."""
 
-    def __init__(self, ast: object) -> None:
+    def __init__(self) -> None:
         """
         Initialize the converter with an AST.
 
@@ -21,7 +22,6 @@ class ASTToPyG:
             ast: The AST from pyverilog.vparser.parser.parse
 
         """
-        self.ast = ast
         self.graph = DirectedGraph()
         self.oper_label = 0
         self.const_label = 0
@@ -29,27 +29,19 @@ class ASTToPyG:
         self.wire_dict: dict[str, list[str]] = {}
         self.temp_dict: dict[str, list[str]] = {}
 
-    def convert(self) -> Data:
-        """
-        Convert AST to PyTorch Geometric Data object.
+    def convert_verilog(self, path: Path) -> Data:
+        """Convert a Verilog file to PyTorch Geometric Data object."""
+        ast, _ = parse([str(path)], outputdir="/tmp/ply")  # noqa: S108
+        return self.convert_ast(ast)
 
-        Returns:
-            PyTorch Geometric Data object with the graph structure
-
-        """
-        # Step 1: Traverse AST and build graph
-        self.traverse_ast(self.ast)
-
-        # Step 2: Calculate node widths
+    def convert_ast(self, ast: object) -> Data:
+        """Convert AST to PyTorch Geometric Data object."""
+        self._traverse_ast(ast)
         self._calculate_node_widths()
-
-        # Step 3: Eliminate wire nodes
         self._eliminate_wires()
-
-        # Step 4: Convert to PyG format
         return self._to_pyg()
 
-    def traverse_ast(self, ast: object) -> None:
+    def _traverse_ast(self, ast: object) -> None:
         """Traverse the AST and build the graph structure."""
         if ast is None:
             return
@@ -74,7 +66,7 @@ class ASTToPyG:
         # Recursively traverse children
         if hasattr(ast, "children"):
             for child in ast.children():
-                self.traverse_ast(child)
+                self._traverse_ast(child)
 
     def _add_decl_node(self, ast: object) -> None:
         """Add a declaration node to the graph."""
@@ -130,7 +122,7 @@ class ASTToPyG:
         # Handle identifiers
         if node_type == "Identifier":
             node_name = str(ast.name)  # type: ignore[missing-attribute]
-            if node_name not in self.graph.node_dict:
+            if node_name not in self.graph.nodes:
                 node = SOGNode(name=node_name, type="Identifier", bit_width=1)
                 self.graph.add_node(node_name, node)
             self.graph.add_edge(parent_name, node_name)
@@ -222,10 +214,10 @@ class ASTToPyG:
 
         # Process true and false branches
         if hasattr(ast, "true_statement") and ast.true_statement:
-            self.traverse_ast(ast.true_statement)
+            self._traverse_ast(ast.true_statement)
 
         if hasattr(ast, "false_statement") and ast.false_statement:
-            self.traverse_ast(ast.false_statement)
+            self._traverse_ast(ast.false_statement)
 
     def _handle_case_statement(self, ast: object) -> None:
         """Handle case statements."""
@@ -245,7 +237,7 @@ class ASTToPyG:
         if hasattr(ast, "caselist"):
             for case in ast.caselist:
                 if hasattr(case, "statement"):
-                    self.traverse_ast(case.statement)
+                    self._traverse_ast(case.statement)
 
     def _get_node_name(self, ast: object) -> str | None:
         """Extract node name from AST node."""
@@ -312,16 +304,16 @@ class ASTToPyG:
     def _calculate_node_widths(self) -> None:
         """Calculate and propagate bit widths through the graph."""
         # Simple width calculation - can be enhanced
-        for name, node in self.graph.node_dict.items():
+        for name, node in self.graph.nodes.items():
             if node.bit_width == 1 and name in self.graph.edges:
                 # Try to infer width from connected nodes
-                neighbors = self.graph.get_neighbors(name)
+                neighbors = self.graph.get_loads(name)
                 if neighbors:
                     max_width = max(
                         (
-                            self.graph.node_dict[n].bit_width
+                            self.graph.nodes[n].bit_width
                             for n in neighbors
-                            if n in self.graph.node_dict
+                            if n in self.graph.nodes
                         ),
                         default=1,
                     )
@@ -342,18 +334,18 @@ class ASTToPyG:
             iteration += 1
 
             for wire in list(wire_nodes):
-                if wire not in self.graph.node_dict:
+                if wire not in self.graph.nodes:
                     wire_nodes.remove(wire)
                     continue
 
                 # Get wire's inputs and outputs
-                wire_outputs = self.graph.get_neighbors(wire)
+                wire_outputs = self.graph.get_loads(wire)
 
                 # Find nodes that have this wire as output
                 wire_inputs = [
                     node
-                    for node in self.graph.get_all_nodes()
-                    if wire in self.graph.get_neighbors(node)
+                    for node in self.graph.nodes
+                    if wire in self.graph.get_loads(node)
                 ]
 
                 if not wire_inputs or not wire_outputs:
@@ -376,14 +368,14 @@ class ASTToPyG:
     def _to_pyg(self) -> Data:
         """Convert the graph to PyTorch Geometric Data format."""
         # Create node mapping
-        nodes = sorted(self.graph.get_all_nodes())
+        nodes = sorted(self.graph.nodes.keys())
         node_to_idx = {node: idx for idx, node in enumerate(nodes)}
 
         # Create edge index
         edge_list = [
             [node_to_idx[from_node], node_to_idx[to_node]]
             for from_node in nodes
-            for to_node in self.graph.get_neighbors(from_node)
+            for to_node in self.graph.get_loads(from_node)
             if to_node in node_to_idx
         ]
 
@@ -395,9 +387,9 @@ class ASTToPyG:
         # Create node features
         node_features = [
             [
-                float(self.graph.node_dict[node_name].bit_width),
-                float(self.graph.node_dict[node_name].fanout),
-                float(self.graph.node_dict[node_name].toggle_rate),
+                float(self.graph.nodes[node_name].bit_width),
+                float(self.graph.nodes[node_name].fanout),
+                float(self.graph.nodes[node_name].toggle_rate),
             ]
             for node_name in nodes
         ]
@@ -409,22 +401,6 @@ class ASTToPyG:
 
         # Store additional metadata
         data.node_names = nodes
-        data.node_types = [self.graph.node_dict[n].type for n in nodes]
+        data.node_types = [self.graph.nodes[n].type for n in nodes]
 
         return data
-
-
-def convert_verilog_to_pyg(verilog_file: str) -> Data:
-    """
-    Convert a Verilog file to PyG graph.
-
-    Args:
-        verilog_file: Path to the Verilog file
-
-    Returns:
-        PyTorch Geometric Data object
-
-    """
-    ast, _ = parse([verilog_file], outputdir="/tmp/ply")  # noqa: S108
-    converter = ASTToPyG(ast)
-    return converter.convert()

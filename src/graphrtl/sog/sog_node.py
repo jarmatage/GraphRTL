@@ -14,7 +14,6 @@ class SOGNode:
     toggle_rate: float = 0.5
     transition_time: float = 0.5
     delay: float = 0.0
-    feat: None = None
 
     def __repr__(self) -> str:
         """Represent the SOGNode by its name."""
