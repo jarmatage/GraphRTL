@@ -4,7 +4,7 @@ all: lint test
 
 lint: .venv/bin/activate
 	uvx ruff format --check
-	uvx ruff check
+	uvx ruff check src tests
 	uvx pyrefly check
 
 test: .venv/bin/activate
