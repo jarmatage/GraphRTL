@@ -425,6 +425,6 @@ def convert_verilog_to_pyg(verilog_file: str) -> Data:
         PyTorch Geometric Data object
 
     """
-    ast, _ = parse([verilog_file])
+    ast, _ = parse([verilog_file], outputdir="/tmp/ply")  # noqa: S108
     converter = ASTToPyG(ast)
     return converter.convert()
