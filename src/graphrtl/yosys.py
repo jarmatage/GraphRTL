@@ -54,3 +54,4 @@ def generate_sog_verilog(
     subprocess.run([str(yosys), script], check=True)  # noqa: S603
     clean_sog: Path = outdir / f"{design}.sog.v"
     clean_verilog(tmp_sog, clean_sog)
+    tmp_sog.unlink()
