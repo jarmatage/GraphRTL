@@ -4,7 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from graphrtl.sog import DirectedGraph, SOGNode, convert_verilog_to_pyg
+from graphrtl.sog.ast_to_pyg import convert_verilog_to_pyg
+from graphrtl.sog.directed_graph import DirectedGraph
+from graphrtl.sog.sog_node import SOGNode
 
 
 def test_directed_graph() -> None:
