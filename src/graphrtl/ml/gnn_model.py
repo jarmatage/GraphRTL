@@ -189,7 +189,7 @@ class HybridPowerGNN(nn.Module):
         )
 
         # Remove the final MLP from GNN (we'll replace it with our own)
-        self.gnn.mlp = nn.Identity()
+        self.gnn.mlp = nn.Identity()  # type: ignore[assignment]
 
         # Combined MLP
         combined_dim = hidden_channels + num_graph_features
