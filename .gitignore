@@ -8,5 +8,6 @@ __pycache__/
 *.egg-info/
 
 # Specific directories
+/build/
 /dist/
 /tests/tmp/
