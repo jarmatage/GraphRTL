@@ -210,6 +210,7 @@ class HybridPowerGNN(nn.Module):
         Args:
             data: PyG Data object with x (node features) and edge_index
             graph_features: Handcrafted graph-level features
+                           Can be [batch_size, num_features] or [batch_size * num_features]
 
         Returns:
             Predicted power consumption (scalar)
@@ -218,18 +219,24 @@ class HybridPowerGNN(nn.Module):
         # Get GNN features
         gnn_features = self.gnn(data)
 
-        # Ensure graph_features has the right shape
+        # Handle graph_features shape
+        # PyG's DataLoader concatenates all attributes, so graph_features might be flattened
         if graph_features.dim() == 1:
-            graph_features = graph_features.unsqueeze(0)
+            # Flattened batch - need to reshape to [batch_size, num_features]
+            if hasattr(data, "batch") and data.batch is not None:
+                batch_size = int(data.batch.max().item()) + 1
+                num_features = graph_features.shape[0] // batch_size
+                graph_features = graph_features.view(batch_size, num_features)
+            else:
+                # Single graph
+                graph_features = graph_features.unsqueeze(0)
+
+        # Ensure gnn_features has batch dimension
+        if gnn_features.dim() == 1:
+            gnn_features = gnn_features.unsqueeze(0)
 
         # Concatenate GNN and handcrafted features
-        combined = torch.cat(
-            [
-                gnn_features.unsqueeze(0) if gnn_features.dim() == 0 else gnn_features,
-                graph_features,
-            ],
-            dim=-1,
-        )
+        combined = torch.cat([gnn_features, graph_features], dim=-1)
 
         # Final prediction
         out = self.mlp(combined)

@@ -19,7 +19,7 @@ from torch_geometric.loader import DataLoader
 from graphrtl.ml.feature_extraction import add_graph_features_to_data
 from graphrtl.ml.gnn_model import HybridPowerGNN, PowerEstimationGNN
 from graphrtl.ml.training import PowerEstimationTrainer
-from graphrtl.sog import ASTToPyG, convert_verilog_to_pyg
+from graphrtl.sog.ast_to_pyg import ASTToPyG
 
 
 def load_power_data_from_csv(csv_path: Path) -> dict:
@@ -137,12 +137,11 @@ def create_dataset_from_csv(
 
         try:
             # Convert SOG Verilog to PyG graph (once per design)
-            data_template = convert_verilog_to_pyg(str(sog_file))
+            converter = ASTToPyG()
+            data_template = converter.convert_verilog(sog_file)
 
             # Add handcrafted features if requested
             if add_features:
-                converter = ASTToPyG()
-                converter.convert_verilog(sog_file)
                 data_template = add_graph_features_to_data(
                     data_template, converter.graph
                 )

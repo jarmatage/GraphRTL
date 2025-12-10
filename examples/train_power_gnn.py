@@ -19,7 +19,7 @@ from torch_geometric.loader import DataLoader
 from graphrtl.ml.feature_extraction import add_graph_features_to_data
 from graphrtl.ml.gnn_model import HybridPowerGNN, PowerEstimationGNN
 from graphrtl.ml.training import PowerEstimationTrainer
-from graphrtl.sog import ASTToPyG, convert_verilog_to_pyg
+from graphrtl.sog.ast_to_pyg import ASTToPyG
 
 
 def load_design_with_power_label(
@@ -41,11 +41,10 @@ def load_design_with_power_label(
     """
     # Convert Verilog to PyG graph
     click.echo(f"Converting {verilog_path.name}...")
-    data = convert_verilog_to_pyg(str(verilog_path))
+    converter = ASTToPyG()
+    data = converter.convert_verilog(verilog_path)
 
     # Add handcrafted features (for hybrid model)
-    converter = ASTToPyG()
-    converter.convert_verilog(verilog_path)
     data = add_graph_features_to_data(data, converter.graph)
 
     # Load power label
